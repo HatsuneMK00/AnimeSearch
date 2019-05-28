@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../static/bootstrap.min.css" rel="stylesheet">
+    <title>Title</title>
+</head>
+<body>
+<div style="padding: 10vh 50px;font-size: 25px;" class="container">
+    <form method="POST" action="addAnime" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">动画名称</label>
+            <input type="text" class="form-control" id="name" name='name' placeholder="名称">
+        </div>
+        <div class="form-group">
+            <label for="describe">简介</label>
+            <textarea class="form-control" rows="3" id="describe" name='describe' placeholder="简介"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="year">年份</label>
+            <textarea class="form-control" rows="1" id="year" name='year' placeholder="年份"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="vocal">声优<p class="help-block" style="font-size: small">主要声优（空格分割）</p></label>
+            <textarea class="form-control" rows="2" id="vocal" name='vocal' placeholder="声优"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="tag">评价tag<p class="help-block" style="font-size: small">将可以通过tag找到该动画（空格分割）</p></label>
+            <textarea class="form-control" rows="2" id="tag" name='tag' placeholder="Tag"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="score">评分<p class="help-block" style="font-size: small">0-10</p></label>
+            <textarea class="form-control" rows="1" id="score" name='score' placeholder="评分"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="episode_num">集数</label>
+            <textarea class="form-control" rows="1" id="episode_num" name='episode_num' placeholder="集数"></textarea>
+        </div>
+        <div class="form-group">
+            <label>类别</label><br>
+            <div style="font-size: 18px">
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="aiqing" value="type"> 爱情
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="yishijie" value="type"> 异世界
+                </label>
+                <label class="checkbox-inline">
+                    <input type="checkbox" name="zhandou" value="type"> 战斗
+                </label>
+            </div>
+        </div>
+        <div class="form-group" style="font-size: 19px;">
+            <label for="Image">封面图<p class="help-block" style="font-size: small">需要一张封面图才比较好看</p></label>
+            <input type="file" multiple="multiple" name="file" id="Image">
+        </div>
+        <div style="display: table;width: 60%;margin-left: auto;margin-right: auto">
+            <button type="submit" class="btn btn-primary btn-lg btn-block">提交</button>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

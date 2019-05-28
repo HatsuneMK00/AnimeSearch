@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../static/bootstrap.min.css" rel="stylesheet">
+    <title>Title</title>
+</head>
+<body style="margin:30px">
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">动画站</a>
+        </div>
+        <div class="nav navbar-nav">
+            <li>
+                <a href="type">种类</a>
+            </li>
+            <li class="active">
+                <a href="tag">评价</a>
+            </li>
+        </div>
+    </div>
+</nav>
+
+<form method="post" action="result" role="form" style="margin: 10px 100px 10px 100px;">
+    <label style="font-size: large">TAG</label>
+    {% for item in tags %}
+    <div class="form-group">
+        <label class="checkbox-inline">
+            <input type="checkbox" name={{item[0]}} value="tag">{{item[0]}}   <span class="badge badge-light">{{item[1]}}</span>
+        </label>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Search Start!</button>
+</form>
+</body>
+</html>

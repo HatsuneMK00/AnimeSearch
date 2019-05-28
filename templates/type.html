@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="../static/bootstrap.min.css" rel="stylesheet">
+    <title>Title</title>
+</head>
+<body style="margin:30px">
+<nav class="navbar navbar-default" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">动画站</a>
+        </div>
+        <div class="nav navbar-nav">
+            <li class="active">
+                <a href="type">种类</a>
+            </li>
+            <li><a href="tag">评价</a></li>
+        </div>
+    </div>
+</nav>
+
+<form method="post" action="result" role="form" style="margin: 10px 100px 10px 100px;">
+    <label style="font-size: large">种类</label>
+    {% for item in types %}
+    <div class="form-group">
+        <label class="checkbox-inline">
+            <input type="checkbox" name={{item[1]}} value="type"> {{item[0]}}
+        </label>
+    </div>
+    {% endfor %}
+    <label style="font-size: large">声优</label>
+    {% for item in vocals %}
+    <div class="form-group">
+        <label class="checkbox-inline">
+            <input type="checkbox" name={{item}} value="type"> {{item}}
+        </label>
+    </div>
+    {% endfor %}
+    <label style="font-size: large">制作公司</label>
+    {% for item in companys %}
+    <div class="form-group">
+        <label class="checkbox-inline">
+            <input type="checkbox" name={{item}} value="type"> {{item}}
+        </label>
+    </div>
+    {% endfor %}
+    <label style="font-size: large">监督</label>
+    {% for item in directors %}
+    <div class="form-group">
+        <label class="checkbox-inline">
+            <input type="checkbox" name={{item}} value="type"> {{item}}
+        </label>
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary" style="margin-left: 100px;">Search Start!</button>
+</form>
+</body>
+</html>
