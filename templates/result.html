@@ -3,27 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <script src="../static/jquery-1.10.2.min.js"></script>
-    <link href="../static/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
 
-    <title>Title</title>
+    <title>K.makise</title>
 </head>
 <body style="margin:30px">
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">动画站</a>
-        </div>
-        <div class="nav navbar-nav">
-            <li class="active">
-                <a href="#">种类</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">动画站</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="/type">种类 <span class="sr-only">(current)</span></a>
             </li>
-            <li><a href="#">评价</a></li>
-        </div>
+            <li class="nav-item">
+                <a class="nav-link" href="/tag">TAG</a>
+            </li>
+        </ul>
     </div>
 </nav>
 <!-- Modal -->
@@ -58,28 +68,42 @@
         <li class="list-group-item list" style="margin: 10px 0 10px 0;">
             <div class="anime_card row">
                 <div class="col-sm-4">
-                    <img src={{"../static/%s"|format(item[6])}} style="height: 250px;width: 250px;margin-left: 50px">
+                    <img src={{"../static/%s"|format(item[6])}}
+                         style="height: 250px;width: 250px;margin-left: 50px">
                 </div>
                 <div class="col-sm-4">
-                    <div style="font-weight: bold;font-size: large"><p>{{item[0]}}</p></div>
-                    <div class="list-group-item-text"><p>声优：unknown</p></div>
-                    <div class="list-group-item-text"><p>监督：unknown</p></div>
-                    <div class="list-group-item-text"><p>集数：{{item[7]}}</p></div>
-                    <div class="list-group-item-text"><p>制作公司：unknown</p></div>
-                    <div class="list-group-item-text"><p>年份：{{item[3]}}</p></div>
-                    <div class="list-group-item-text"><p>评分：{{item[5]}}</p></div>
-                    <div class="list-group-item-text"><p>描述：{{item[1]}}</p></div>
+                    <div style="font-weight: bold;font-size: larger">{{ item[0] }}</div>
+                    <div class="list-group-item-text" style="padding-bottom: 2px">声优：
+                        {% for vocal in vocals[loop.index0] %}
+                        <a class="badge badge-light" href="#" style="font-size: 13px;">{{vocal[0]}}</a>
+                        {% endfor %}
+                    </div>
+                    <div class="list-group-item-text" style="padding-bottom: 2px">监督：
+                        {% for direct in directors[loop.index0] %}
+                        <a class="badge badge-light" href="#" style="font-size: 13px;">{{direct[0]}}</a>
+                        {% endfor %}
+                    </div>
+                    <div class="list-group-item-text" style="padding-bottom: 2px">集数：{{ item[7] }}</div>
+                    <div class="list-group-item-text" style="padding-bottom: 2px">制作公司：
+                        {% for company in companys[loop.index0] %}
+                        <a class="badge badge-light" href="#" style="font-size: 13px;">{{company[0]}}</a>
+                        {% endfor %}
+                    </div>
+                    <div class="list-group-item-text" style="padding-bottom: 2px">年份：{{ item[3] }}</div>
+                    <div class="list-group-item-text" style="padding-bottom: 2px">评分：{{ item[5] }}</div>
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="popover" title="简介"
+                            data-content="{{item[1]}}">简介
+                    </button>
                 </div>
                 <div class="col-sm-4">
-                    <div style="font-weight: bold">TAG</div>
+                    <div style="font-weight: bold;font-size: large">TAG</div>
                     {% for tag in tags[loop.index0] %}
-                    <a class="badge badge-pill badge-light" style="margin: 0 2px 0 2px"
-                       id={{"%s-%s"|format(item[0],tag[0])}}>
-                        {{tag[0]}}<span class="badge badge-primary">{{tag[1]}}</span>
+                    <a class="badge badge-pill badge-primary" style="font-size: small;color: #ffffff;">
+                        {{ tag[0] }} <span class="badge badge-light" style="font-size: small">{{ tag[1] }}</span>
                     </a>
                     {% endfor %}
-                    <button type="button" class="btn btn-primary btn-sm add-more" id="{{item[0]}}"
-                            style="margin: 0 2px 0 2px;"
+                    <button type="button" class="btn btn-primary btn-sm add-more" id="{{ item[0] }}"
+                            style="margin: 0 2px 0 2px;font-size: smaller;"
                             data-toggle="modal" data-target="#todoke" onclick="Values(this)">
                         添加更多
                     </button>
@@ -93,19 +117,24 @@
     function Values(e) {
         $('#m_name').val($(e).attr('id'))
     }
+
     function callAPI(e) {
         var name = $('#m_name').val();
         var tag = $('#m_tag').val();
         console.log(name);
         console.log(tag);
         $.get(
-            "http://127.0.0.1:5000/addTag?name="+name+"&tag="+tag,
+            "http://127.0.0.1:5000/addTag?name=" + name + "&tag=" + tag,
             function () {
                 window.location.reload();
             }
         );
         $('#todoke').modal('hide');
     }
+
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    })
 </script>
 </body>
 </html>

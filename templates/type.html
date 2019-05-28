@@ -2,58 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="../static/bootstrap.min.css" rel="stylesheet">
-    <title>Title</title>
+    <script src="../static/jquery-1.10.2.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
+            integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+            crossorigin="anonymous"></script>
+    <title>K.makise</title>
 </head>
 <body style="margin:30px">
-<nav class="navbar navbar-default" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="/">动画站</a>
-        </div>
-        <div class="nav navbar-nav">
-            <li class="active">
-                <a href="type">种类</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/">动画站</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+                <a class="nav-link" href="/type">种类 <span class="sr-only">(current)</span></a>
             </li>
-            <li><a href="tag">评价</a></li>
-        </div>
+            <li class="nav-item">
+                <a class="nav-link" href="/tag">TAG</a>
+            </li>
+        </ul>
     </div>
 </nav>
 
-<form method="post" action="result" role="form" style="margin: 10px 100px 10px 100px;">
+<form method="post" action="type/result" role="form" style="margin: 10px 100px 10px 100px;">
     <label style="font-size: large">种类</label>
-    {% for item in types %}
     <div class="form-group">
-        <label class="checkbox-inline">
-            <input type="checkbox" name={{item[1]}} value="type"> {{item[0]}}
+        {% for item in types %}
+        <label class="checkbox-inline" style="margin: 2px 2px 2px 2px">
+            <input type="checkbox" name={{ item[0] }} value="type"> {{ item[0] }}
         </label>
+        {% endfor %}
     </div>
-    {% endfor %}
     <label style="font-size: large">声优</label>
-    {% for item in vocals %}
     <div class="form-group">
-        <label class="checkbox-inline">
-            <input type="checkbox" name={{item}} value="type"> {{item}}
+        {% for item in vocals %}
+        <label class="checkbox-inline" style="margin: 2px 2px 2px 2px">
+            <input type="checkbox" name={{ item[0] }} value="vocal"> {{ item[0] }}
         </label>
+        {% endfor %}
     </div>
-    {% endfor %}
+
     <label style="font-size: large">制作公司</label>
-    {% for item in companys %}
     <div class="form-group">
-        <label class="checkbox-inline">
-            <input type="checkbox" name={{item}} value="type"> {{item}}
+        {% for item in companys %}
+        <label class="checkbox-inline" style="margin: 2px 2px 2px 2px">
+            <input type="checkbox" name={{ item[0] }} value="company"> {{ item[0] }}
         </label>
+        {% endfor %}
     </div>
-    {% endfor %}
     <label style="font-size: large">监督</label>
-    {% for item in directors %}
     <div class="form-group">
-        <label class="checkbox-inline">
-            <input type="checkbox" name={{item}} value="type"> {{item}}
+        {% for item in directors %}
+        <label class="checkbox-inline" style="margin: 2px 2px 2px 2px">
+            <input type="checkbox" name={{ item[0] }} value="director"> {{ item[0] }}
         </label>
+        {% endfor %}
     </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-primary" style="margin-left: 100px;">Search Start!</button>
+    <button type="submit" class="btn btn-primary btn-block">Search Start!</button>
 </form>
 </body>
 </html>

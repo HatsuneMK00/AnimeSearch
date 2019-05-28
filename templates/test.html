@@ -3,47 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <script src="../static/jquery-1.10.2.min.js"></script>
-    <script src="../static/add_tag.js"></script>
     <link rel="stylesheet" href="https://cdn.bootcss.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.slim.min.js"
+            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.12.9/umd/popper.min.js"
+            integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+            crossorigin="anonymous"></script>
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
     <title>Title</title>
 </head>
 <body>
-<!-- 触发模态弹出窗的元素 -->
-<button type="button" data-toggle="modal" data-target="#mymodal" class="btn btn-primary">点击</button>
-<!-- 模态弹出窗 -->
-<div class="modal fade" id="mymodal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
-                        class="sr-only">Close</span></button>
-                <h4 class="modal-title">模态弹出窗标题</h4>
-            </div>
-            <div class="modal-body">
-                <p>模态弹出窗主体内容</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" onclick="test()">保存</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-<script>
-    function test(e) {
-        console.log("hello");
-        $.get(
-            "http://127.0.0.1:5000/addTag?name=a&tag="+"a a",
-            function (data,state) {
-                console.log(data);
-                console.log(state);
-            }
-        )
-    }
-</script>
+<button type="button" class="btn btn-lg btn-danger" data-toggle="popover" title="Popover title"
+        data-content="And here's some amazing content. It's very engaging. Right?">点击体验 popover提示框效果
+</button>
 </body>
+<script>
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    })
+</script>
 </html>
