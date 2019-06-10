@@ -1,4 +1,14 @@
 import pymysql
+from datetime import timedelta
+
+
+class Config(object):
+    SECRET_KEY = '\xa4/\xdf\x9d\xb4[HB\xc6\x8d\xf2\x10J\xe2\x0e\x1a'
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+
+
+class DevelopmentConfig(Config):
+    info="this is Development environment config"
 
 class anime:
     def __init__(self, name, describe, year, score, image, episode_num, link=""):

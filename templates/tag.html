@@ -9,6 +9,7 @@
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
     <title>K.makise</title>
+    <script src="../static/basic.js"></script>
 </head>
 <body style="margin:30px">
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -23,10 +24,27 @@
             <li class="nav-item">
                 <a class="nav-link" href="/type">种类 <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="/tag">TAG</a>
             </li>
         </ul>
+        {% if user is none %}
+        <div class="my-2 my-lg-0">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="button" onclick="directToLogIn()">登陆</button>
+        </div>
+        {% else %}
+        <div class="nav-item dropdown mr-ms-2">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false" style="color: #000;">
+                {{user}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/watchlist/{{user}}">看番记录</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/logout">注销</a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </nav>
 

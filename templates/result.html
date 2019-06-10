@@ -14,7 +14,7 @@
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-
+    <script src="../static/basic.js"></script>
     <title>K.makise</title>
 </head>
 <body style="margin:30px">
@@ -34,6 +34,23 @@
                 <a class="nav-link" href="/tag">TAG</a>
             </li>
         </ul>
+        {% if user is none %}
+        <div class="my-2 my-lg-0">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="button" onclick="directToLogIn()">登陆</button>
+        </div>
+        {% else %}
+        <div class="nav-item dropdown mr-ms-2">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown"
+               aria-haspopup="true" aria-expanded="false" style="color: #000;">
+                {{user}}
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <a class="dropdown-item" href="/watchlist/{{user}}">看番记录</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="/logout">注销</a>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </nav>
 <!-- Modal -->
@@ -61,7 +78,7 @@
 </div>
 <div class="container">
     <div class="page-header">
-        <h1>种类索引结果</h1>
+        <h1>索引结果</h1>
     </div>
     <ul class="list-group">
         {% for item in data %}
@@ -73,8 +90,19 @@
                 </div>
                 <div class="col-sm-4">
                     <div>
-                        <a href="anime/{{item[0]}}" style="color: #000000;"><div style="font-weight: bold;font-size: larger;display: inline-block;" id="anime{{loop.index0}}">{{ item[0] }}</div></a>
-                        <div style="display: inline-block;"><img src="../static/modify.png" style="height: 20px; width: 20px;margin-left: 10px" onclick="modify_anime(this)" id="{{loop.index0}}"></div>
+                        <a href="/anime/{{item[0]}}" style="color: #000000;">
+                            <div style="font-weight: bold;font-size: larger;display: inline-block;"
+                                 id="anime{{loop.index0}}">{{ item[0] }}
+                            </div>
+                        </a>
+                        <div style="display: inline-block;"><img src="../static/modify.png"
+                                                                 style="height: 20px; width: 20px;margin-left: 10px"
+                                                                 onclick="modify_anime(this)" id="{{loop.index0}}">
+                        </div>
+                        <div style="display: inline-block;"><img src="../static/add2.png"
+                                                                 style="height: 20px; width: 20px;margin-left: 10px"
+                                                                 onclick="add_watch('{{loop.index0}}')">
+                        </div>
                     </div>
                     <div class="list-group-item-text" style="padding-bottom: 2px">声优：
                         {% for vocal in vocals[loop.index0] %}
@@ -116,39 +144,5 @@
         {% endfor %}
     </ul>
 </div>
-<script>
-    function Values(e) {
-        $('#m_name').val($(e).attr('id'))
-    }
-
-    function modify_anime(e){
-        var a_index = "div#anime" + $(e).attr('id');
-        var name = $(a_index).text();
-        window.location.href="http://127.0.0.1:5000/modifyAnime?name="+name;
-    }
-
-    function callAPI(e) {
-        var name = $('#m_name').val();
-        name = name.replace('&','^');
-        var tag = $('#m_tag').val();
-        console.log(name);
-        console.log(tag);
-        $.get(
-            "http://127.0.0.1:5000/addTag",
-            {
-                tag:tag,
-                name:name
-            },
-            function () {
-                window.location.href="http://127.0.0.1:5000/anime/" + name;
-            }
-        );
-        $('#todoke').modal('hide');
-    }
-
-    $(function () {
-        $('[data-toggle="popover"]').popover()
-    })
-</script>
 </body>
 </html>

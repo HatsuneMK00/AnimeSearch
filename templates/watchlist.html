@@ -14,32 +14,10 @@
     <script src="https://cdn.bootcss.com/bootstrap/4.0.0/js/bootstrap.min.js"
             integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
             crossorigin="anonymous"></script>
-    <title>K.makise</title>
     <script src="../static/basic.js"></script>
+    <title>K.makise</title>
 </head>
 <body style="margin:30px">
-<div class="modal fade" id="todoke" tabindex="-1" role="dialog" aria-labelledby="animeName" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="animeName">TAG</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <label style="font-size: large">NAME:</label>
-                <input type="text" class="form-control" id="m_name" name='m_name' readonly>
-                <label style="font-size: large">TAG:</label>
-                <input type="text" class="form-control" id="m_tag" name='m_tag'>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
-                <button type="button" class="btn btn-primary" onclick="callAPI(this)">提交</button>
-            </div>
-        </div>
-    </div>
-</div>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/">动画站</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -75,7 +53,33 @@
         {% endif %}
     </div>
 </nav>
+<!-- Modal -->
+<div class="modal fade" id="todoke" tabindex="-1" role="dialog" aria-labelledby="animeName" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="animeName">添加TAG</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <label style="font-size: large">NAME:</label>
+                <input type="text" class="form-control" id="m_name" name='m_name' readonly>
+                <label style="font-size: large">TAG:</label>
+                <input type="text" class="form-control" id="m_tag" name='m_tag'>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="callAPI(this)">提交</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="container">
+    <div class="page-header">
+        <h1>WATCH LIST</h1>
+    </div>
     <ul class="list-group">
         {% for item in data %}
         <li class="list-group-item list" style="margin: 10px 0 10px 0;">
@@ -95,10 +99,9 @@
                                                                  style="height: 20px; width: 20px;margin-left: 10px"
                                                                  onclick="modify_anime(this)" id="{{loop.index0}}">
                         </div>
-                        <!--这里考虑使用另一种方法来定位动画，直接传参数-->
-                        <div style="display: inline-block;"><img src="../static/add2.png"
+                        <div style="display: inline-block;"><img src="../static/delete.png"
                                                                  style="height: 20px; width: 20px;margin-left: 10px"
-                                                                 onclick="add_watch('{{loop.index0}}')">
+                                                                 onclick="remove_watch('{{loop.index0}}')">
                         </div>
                     </div>
                     <div class="list-group-item-text" style="padding-bottom: 2px">声优：
@@ -119,11 +122,9 @@
                     </div>
                     <div class="list-group-item-text" style="padding-bottom: 2px">年份：{{ item[3] }}</div>
                     <div class="list-group-item-text" style="padding-bottom: 2px">评分：{{ item[5] }}</div>
-                    <div>
-                        <button type="button" class="btn btn-sm btn-primary" data-toggle="popover" title="简介"
-                                data-content="{{item[1]}}">简介
-                        </button>
-                    </div>
+                    <button type="button" class="btn btn-sm btn-primary" data-toggle="popover" title="简介"
+                            data-content="{{item[1]}}">简介
+                    </button>
                 </div>
                 <div class="col-sm-4">
                     <div style="font-weight: bold;font-size: large">TAG</div>
@@ -143,6 +144,26 @@
         {% endfor %}
     </ul>
 </div>
-<a href="addAnime"><img src="../static/add.png" class="img-rounded" style="height: 50px;width: 50px"></a>
+<!--不知道为什么，这个函数就是找不到。。-->
+<script>
+    function remove_watch(index) {
+    console.log(index);
+    var a_index = "div#anime" + index;
+    var name = $(a_index).text();
+    var url = "http://127.0.0.1:5000/removeAnimeFromWatch/" + name;
+    // console.log(url);
+    $.get(
+        url,
+        function (data) {
+            if (data == "success") {
+                window.location.reload();
+            }
+            else{
+                console.log("something goes wrong")
+            }
+        }
+    )
+}
+</script>
 </body>
 </html>
