@@ -222,7 +222,7 @@ def type_result():
             else:
                 m_subset_query = m_subset_query + subset_query.format("anime_type", "type",
                                                                       query_type[i]) + " AS temp" + str(alias_temp)
-                alias_temp = alias_temp + 1
+            alias_temp = alias_temp + 1
         # 添加company查询语句
         for i in range(query_company.__len__()):
             if alias_temp < total_query_num - 1:
@@ -233,7 +233,7 @@ def type_result():
                 m_subset_query = m_subset_query + subset_query.format("produce", "comp_name",
                                                                       query_company[i] + "%") + " AS temp" + str(
                     alias_temp)
-                alias_temp = alias_temp + 1
+            alias_temp = alias_temp + 1
         # 添加director查询语句
         for i in range(query_director.__len__()):
             if alias_temp < total_query_num - 1:
@@ -243,10 +243,10 @@ def type_result():
             else:
                 m_subset_query = m_subset_query + subset_query.format("direct", "dir_name",
                                                                       query_director[i]) + " AS temp" + str(alias_temp)
-                alias_temp = alias_temp + 1
+            alias_temp = alias_temp + 1
 
         statement = with_sub_query.format(m_subset_query) + "\n" + final_query
-        # print(statement)
+        print(statement)
         cursor.execute(statement)
         # 所有满足要求的anime_name
         animes = cursor.fetchall()
