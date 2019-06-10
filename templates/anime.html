@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!--动画页面（点击动画标题定向到的页面）的具体实现先不做了，应该要有不一样的排版，这里直接套用首页的动画条目，只传长度为1的anime数组进入模板，功能是基本全的-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -68,7 +69,7 @@
                 </div>
                 <div class="col-sm-4">
                     <div>
-                        <a href="anime/{{item[0]}}" style="color: #000000;"><div style="font-weight: bold;font-size: larger;display: inline-block;" id="anime{{loop.index0}}">{{ item[0] }}</div></a>
+                        <a  href="{{item[4]}}"><div style="font-weight: bold;font-size: larger;display: inline-block;" id="anime{{loop.index0}}">{{ item[0] }}</div></a>
                         <div style="display: inline-block;"><img src="../static/modify.png" style="height: 20px; width: 20px;margin-left: 10px" onclick="modify_anime(this)" id="{{loop.index0}}"></div>
                     </div>
                     <div class="list-group-item-text" style="padding-bottom: 2px">声优：
@@ -113,7 +114,6 @@
         {% endfor %}
     </ul>
 </div>
-<a href="addAnime"><img src="../static/add.png" class="img-rounded" style="height: 50px;width: 50px"></a>
 <script>
     function Values(e) {
         $('#m_name').val($(e).attr('id'))
@@ -138,7 +138,7 @@
                 name: name
             },
             function () {
-                window.location.href="http://127.0.0.1:5000/anime/" + name;
+                window.location.reload();
             }
         );
         $('#todoke').modal('hide');

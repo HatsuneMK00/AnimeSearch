@@ -104,3 +104,21 @@ def getTags(anime_name,db):
     cursor.execute(statement)
     result = cursor.fetchall()
     return result
+
+
+def getAll(db):
+    cursor = db.cursor()
+
+    query = """SELECT DISTINCT `name` FROM anime"""
+    cursor.execute(query)
+    result = cursor.fetchall()
+    return result
+
+
+def dbConnect():
+    db = pymysql.connect("localhost", "temp", "123456", "anime")
+    return db
+
+
+def dbDisconnect(db):
+    db.close()

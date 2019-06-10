@@ -68,11 +68,14 @@
         <li class="list-group-item list" style="margin: 10px 0 10px 0;">
             <div class="anime_card row">
                 <div class="col-sm-4">
-                    <img src={{"../static/%s"|format(item[6])}}
-                         style="height: 250px;width: 250px;margin-left: 50px">
+                    <img src='{{"/static/"~item[6]}}'
+                         style="height: 250px;width: 180px;margin-left: 50px">
                 </div>
                 <div class="col-sm-4">
-                    <div style="font-weight: bold;font-size: larger">{{ item[0] }}</div>
+                    <div>
+                        <a href="anime/{{item[0]}}" style="color: #000000;"><div style="font-weight: bold;font-size: larger;display: inline-block;" id="anime{{loop.index0}}">{{ item[0] }}</div></a>
+                        <div style="display: inline-block;"><img src="../static/modify.png" style="height: 20px; width: 20px;margin-left: 10px" onclick="modify_anime(this)" id="{{loop.index0}}"></div>
+                    </div>
                     <div class="list-group-item-text" style="padding-bottom: 2px">声优：
                         {% for vocal in vocals[loop.index0] %}
                         <a class="badge badge-light" href="#" style="font-size: 13px;">{{vocal[0]}}</a>
@@ -118,15 +121,26 @@
         $('#m_name').val($(e).attr('id'))
     }
 
+    function modify_anime(e){
+        var a_index = "div#anime" + $(e).attr('id');
+        var name = $(a_index).text();
+        window.location.href="http://127.0.0.1:5000/modifyAnime?name="+name;
+    }
+
     function callAPI(e) {
         var name = $('#m_name').val();
+        name = name.replace('&','^');
         var tag = $('#m_tag').val();
         console.log(name);
         console.log(tag);
         $.get(
-            "http://127.0.0.1:5000/addTag?name=" + name + "&tag=" + tag,
+            "http://127.0.0.1:5000/addTag",
+            {
+                tag:tag,
+                name:name
+            },
             function () {
-                window.location.reload();
+                window.location.href="http://127.0.0.1:5000/anime/" + name;
             }
         );
         $('#todoke').modal('hide');

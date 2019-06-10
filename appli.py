@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect
-from settings import getCompanys, getDirectors, getVocals, getTags
+from settings import getCompanys, getDirectors, getVocals, getTags, getAll, dbConnect, dbDisconnect
 import pymysql
 import os
 
@@ -14,7 +14,7 @@ def allowed_file(filename):
 
 @app.route('/')
 def hello_world():
-    db = pymysql.connect("localhost", "temp", "123456", "anime")
+    db = dbConnect()
     cursor = db.cursor()
     anime_select_top_ten_query = """SELECT * FROM anime                
 ORDER BY RAND()
@@ -31,23 +31,40 @@ LIMIT 5"""
         directors.append(getDirectors(anime[0], db))
         vocals.append(getVocals(anime[0], db))
 
-    db.close()
+    dbDisconnect(db)
     return render_template('index.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys)
 
 
 @app.route('/anime/<anime_name>')
 def anime(anime_name):
-    return "there should be some anime info"
+    anime_select_query = """SELECT * FROM anime                
+WHERE `name`='{}'"""
+    statement = anime_select_query.format(anime_name)
+    db = dbConnect()
+    cursor = db.cursor()
+    cursor.execute(statement)
+    data = cursor.fetchall()
+    vocals = []
+    directors = []
+    companys = []
+    tags = []
+    for anime in data:
+        tags.append(getTags(anime[0], db))
+        companys.append(getCompanys(anime[0], db))
+        directors.append(getDirectors(anime[0], db))
+        vocals.append(getVocals(anime[0], db))
+    dbDisconnect(db)
+    return render_template('anime.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys)
 
 
 @app.route('/user/<user_name>')
 def user(user_name):
-    db = pymysql.connect("localhost", "temp", "123456", "anime")
+    db = dbConnect()
     cursor = db.cursor()
     print("select usr_name from user where usr_name='%s'" % user_name)
     cursor.execute("select usr_name from user where usr_name='%s'" % user_name)
     data = cursor.fetchall()
-    db.close()
+    dbDisconnect(db)
     if data.__len__() == 0:
         return "no such user"
     else:
@@ -57,7 +74,7 @@ def user(user_name):
 # 在编写SQL时，在第一步去掉了关系表与anime表的连接操作，即不要求anime有外码约束，查找到的anime可能没有任何信息
 @app.route('/type/result', methods=['POST'])
 def type_result():
-    db = pymysql.connect("localhost", "temp", "123456", "anime")
+    db = dbConnect()
     with_sub_query = """WITH temp(name) AS (SELECT * FROM
     {})"""
     subset_query = """(SELECT DISTINCT anime_name
@@ -87,60 +104,66 @@ def type_result():
     # print(query_type)
     # print(query_vocal)
     # print(query_company)
+
     statement = ""
     final_query = """SELECT `name` FROM temp"""
     m_subset_query = ""
     total_query_num = len(query_vocal) + len(query_type) + len(query_director) + len(query_company)
     alias_temp = 0
-
-    # 添加vocal查询语句
-    for i in range(query_vocal.__len__()):
-        if alias_temp < total_query_num - 1:
-            m_subset_query = m_subset_query + subset_query.format("act", "vocal_name",
-                                                                  query_vocal[i]) + " AS temp" + str(
-                alias_temp) + " NATURAL JOIN\n"
-        else:
-            m_subset_query = m_subset_query + subset_query.format("act", "vocal_name",
-                                                                  query_vocal[i]) + " AS temp" + str(alias_temp)
-        alias_temp = alias_temp + 1
-    # 添加type查询语句
-    for i in range(query_type.__len__()):
-        if alias_temp < total_query_num - 1:
-            m_subset_query = m_subset_query + subset_query.format("anime_type", "type",
-                                                                  query_type[i]) + " AS temp" + str(
-                alias_temp) + " NATURAL JOIN\n"
-        else:
-            m_subset_query = m_subset_query + subset_query.format("anime_type", "type",
-                                                                  query_type[i]) + " AS temp" + str(alias_temp)
-            alias_temp = alias_temp + 1
-    # 添加company查询语句
-    for i in range(query_company.__len__()):
-        if alias_temp < total_query_num - 1:
-            m_subset_query = m_subset_query + subset_query.format("produce", "comp_name",
-                                                                  query_company[i] + "%") + " AS temp" + str(
-                alias_temp) + " NATURAL JOIN\n"
-        else:
-            m_subset_query = m_subset_query + subset_query.format("produce", "comp_name",
-                                                                  query_company[i] + "%") + " AS temp" + str(alias_temp)
-            alias_temp = alias_temp + 1
-    # 添加director查询语句
-    for i in range(query_director.__len__()):
-        if alias_temp < total_query_num - 1:
-            m_subset_query = m_subset_query + subset_query.format("direct", "dir_name",
-                                                                  query_director[i]) + " AS temp" + str(
-                alias_temp) + " NATURAL JOIN\n"
-        else:
-            m_subset_query = m_subset_query + subset_query.format("direct", "dir_name",
-                                                                  query_director[i]) + " AS temp" + str(alias_temp)
-            alias_temp = alias_temp + 1
-
-    statement = with_sub_query.format(m_subset_query) + "\n" + final_query
     cursor = db.cursor()
-    # print(statement)
-    cursor.execute(statement)
-    # 所有满足要求的anime_name
-    animes = cursor.fetchall()
-    # print(animes)
+
+    if total_query_num == 0:
+        # 获取全部动画
+        animes = getAll(db)
+    else:
+        # 添加vocal查询语句
+        for i in range(query_vocal.__len__()):
+            if alias_temp < total_query_num - 1:
+                m_subset_query = m_subset_query + subset_query.format("act", "vocal_name",
+                                                                      query_vocal[i]) + " AS temp" + str(
+                    alias_temp) + " NATURAL JOIN\n"
+            else:
+                m_subset_query = m_subset_query + subset_query.format("act", "vocal_name",
+                                                                      query_vocal[i]) + " AS temp" + str(alias_temp)
+            alias_temp = alias_temp + 1
+        # 添加type查询语句
+        for i in range(query_type.__len__()):
+            if alias_temp < total_query_num - 1:
+                m_subset_query = m_subset_query + subset_query.format("anime_type", "type",
+                                                                      query_type[i]) + " AS temp" + str(
+                    alias_temp) + " NATURAL JOIN\n"
+            else:
+                m_subset_query = m_subset_query + subset_query.format("anime_type", "type",
+                                                                      query_type[i]) + " AS temp" + str(alias_temp)
+                alias_temp = alias_temp + 1
+        # 添加company查询语句
+        for i in range(query_company.__len__()):
+            if alias_temp < total_query_num - 1:
+                m_subset_query = m_subset_query + subset_query.format("produce", "comp_name",
+                                                                      query_company[i] + "%") + " AS temp" + str(
+                    alias_temp) + " NATURAL JOIN\n"
+            else:
+                m_subset_query = m_subset_query + subset_query.format("produce", "comp_name",
+                                                                      query_company[i] + "%") + " AS temp" + str(
+                    alias_temp)
+                alias_temp = alias_temp + 1
+        # 添加director查询语句
+        for i in range(query_director.__len__()):
+            if alias_temp < total_query_num - 1:
+                m_subset_query = m_subset_query + subset_query.format("direct", "dir_name",
+                                                                      query_director[i]) + " AS temp" + str(
+                    alias_temp) + " NATURAL JOIN\n"
+            else:
+                m_subset_query = m_subset_query + subset_query.format("direct", "dir_name",
+                                                                      query_director[i]) + " AS temp" + str(alias_temp)
+                alias_temp = alias_temp + 1
+
+        statement = with_sub_query.format(m_subset_query) + "\n" + final_query
+        # print(statement)
+        cursor.execute(statement)
+        # 所有满足要求的anime_name
+        animes = cursor.fetchall()
+        # print(animes)
 
     # 获取anime相关所需信息
     data = []
@@ -174,13 +197,13 @@ WHERE anime_name='{}'"""
         # print(statement)
         cursor.execute(statement)
         tags.append(cursor.fetchall())
-    db.close()
+    dbDisconnect(db)
     return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys)
 
 
-@app.route('/tag/result',methods=['POST'])
+@app.route('/tag/result', methods=['POST'])
 def tag_result():
-    db = pymysql.connect("localhost", "temp", "123456", "anime")
+    db = dbConnect()
     with_sub_query = """WITH temp(name) AS (SELECT * FROM
         {})"""
     subset_query = """(SELECT DISTINCT anime_name
@@ -243,19 +266,19 @@ def tag_result():
         # print(statement)
         cursor.execute(statement)
         tags.append(cursor.fetchall())
-    db.close()
+    dbDisconnect(db)
     return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys)
 
 
 @app.route('/addAnime', methods=['GET', 'POST'])
 def addAnime():
-    db = pymysql.connect("localhost", "temp", "123456", "anime")
+    db = dbConnect()
     if (request.method == 'GET'):
         cursor = db.cursor()
         type_select_query = """SELECT `type` FROM classification"""
         cursor.execute(type_select_query)
         data = cursor.fetchall()
-        db.close()
+        dbDisconnect(db)
         return render_template('addAnime.html', data=data)
     else:
         m_form = request.form
@@ -300,7 +323,7 @@ VALUES"""
                 anime_type_insert_query = anime_type_insert_query + "('{}','{}')".format(type_value[i], anime_name)
         cursor.execute(anime_type_insert_query)
 
-        # 向usr_tag_anime中插入元祖
+        # 向usr_tag_anime中插入元组
 
         tags = m_form['tag'].split(' ')
         usr_tag_anime_insert_query = """INSERT INTO usr_tag_anime(usr_name,tag,anime_name,agree_num)
@@ -314,7 +337,7 @@ VALUES"""
                                                                                                       anime_name)
         cursor.execute(usr_tag_anime_insert_query)
 
-        # 向act中插入元祖
+        # 向act中插入元组
         vocals = m_form['vocal'].split(' ')
         act_insert_query = """INSERT INTO act(anime_name,vocal_name)
 VALUES"""
@@ -325,9 +348,160 @@ VALUES"""
                 act_insert_query = act_insert_query + "('{}','{}')".format(anime_name, vocals[i])
         cursor.execute(act_insert_query)
 
+        # 向produce中插入元组
+        companys = m_form['company'].split(' ')
+        comp_insert_query = """INSERT INTO produce(anime_name,comp_name)
+VALUES"""
+        for i in range(len(companys)):
+            if i != len(companys) - 1:
+                comp_insert_query = comp_insert_query + "('{}','{}'),".format(anime_name, companys[i])
+            else:
+                comp_insert_query = comp_insert_query + "('{}','{}')".format(anime_name, companys[i])
+        cursor.execute(comp_insert_query)
+
+        # 向direct中插入元组
+        directors = m_form['director'].split(' ')
+        direct_insert_query = """INSERT INTO direct(anime_name,dir_name)
+        VALUES"""
+        for i in range(len(directors)):
+            if i != len(directors) - 1:
+                direct_insert_query = direct_insert_query + "('{}','{}'),".format(anime_name, directors[i])
+            else:
+                direct_insert_query = direct_insert_query + "('{}','{}')".format(anime_name, directors[i])
+        cursor.execute(direct_insert_query)
+
         db.commit()
-        db.close()
-        return redirect('/')
+        dbDisconnect(db)
+        return redirect('/anime/' + anime_name)
+
+
+# 这个函数和addAnime冗余较高，如果修改需要多注意！
+@app.route('/modifyAnime',methods=['POST','GET'])
+def ModifyAnime():
+    db = dbConnect()
+    cursor = db.cursor()
+    if request.method == "GET":
+        anime_name = request.args.get('name')
+        tags = getTags(anime_name, db)
+        companys = getCompanys(anime_name, db)
+        directors = getDirectors(anime_name, db)
+        vocals = getVocals(anime_name, db)
+        temp = []
+        for tag in tags:
+            temp.append(tag[0])
+        tag = " ".join(temp)
+        temp = []
+        for company in companys:
+            temp.append(company[0])
+        company = " ".join(temp)
+        temp = []
+        for director in directors:
+            temp.append(director[0])
+        director = " ".join(temp)
+        temp = []
+        for vocal in vocals:
+            temp.append(vocal[0])
+        vocal = " ".join(temp)
+
+        anime_select_query = """SELECT * FROM anime                
+        WHERE `name`= '{}'"""
+        cursor.execute(anime_select_query.format(anime_name))
+        data = cursor.fetchall()
+        return render_template("modifyAnime.html", data=data[0], vocal=vocal, company=company, director=director,
+                               tag=tag)
+    else:
+        m_form = request.form
+        # 向anime中更新元组
+
+        anime_update_query = """UPDATE anime
+SET {}
+WHERE `name`='{}'"""
+        anime_update_value = """`describe`='{}',`year`='{}',`score`='{}',`episode_num`='{}'"""
+        statement = anime_update_query.format(
+            anime_update_value.format(m_form['describe'], m_form['year'], m_form['score'], m_form['episode_num']),
+            m_form['name'])
+        # print(statement)
+        cursor = db.cursor()
+        cursor.execute(statement)
+        db.commit()
+
+        # 向usr_tag_anime中更新元组
+        # 先删除全部相关元组，再重新添加
+        # 现在没有考虑用户不同的情况 当添加用户时 可以在GET返回页面时只返回该用户添加的tag 这里删除的逻辑不受影响
+        anime_name = m_form['name']
+        usr_tag_anime_delete_query = """DELETE FROM usr_tag_anime
+WHERE anime_name='{}'"""
+        statement = usr_tag_anime_delete_query.format(anime_name)
+        cursor.execute(statement)
+        db.commit()
+
+        tags = m_form['tag'].split(' ')
+        usr_tag_anime_insert_query = """INSERT INTO usr_tag_anime(usr_name,tag,anime_name,agree_num)
+        VALUES"""
+        for i in range(len(tags)):
+            if i != len(tags) - 1:
+                usr_tag_anime_insert_query = usr_tag_anime_insert_query + "('{}','{}','{}',1),".format('admin', tags[i],
+                                                                                                       anime_name)
+            else:
+                usr_tag_anime_insert_query = usr_tag_anime_insert_query + "('{}','{}','{}',1)".format('admin', tags[i],
+                                                                                                      anime_name)
+        cursor.execute(usr_tag_anime_insert_query)
+
+        # 向act中更新元组
+        # 逻辑与上面相同
+        act_delete_query = """DELETE FROM `act`
+        WHERE anime_name='{}'"""
+        statement = act_delete_query.format(anime_name)
+        cursor.execute(statement)
+        db.commit()
+
+        vocals = m_form['vocal'].split(' ')
+        act_insert_query = """INSERT INTO act(anime_name,vocal_name)
+        VALUES"""
+        for i in range(len(vocals)):
+            if i != len(vocals) - 1:
+                act_insert_query = act_insert_query + "('{}','{}'),".format(anime_name, vocals[i])
+            else:
+                act_insert_query = act_insert_query + "('{}','{}')".format(anime_name, vocals[i])
+        cursor.execute(act_insert_query)
+
+        # 向produce中插入元组
+        produce_delete_query = """DELETE FROM `produce`
+                WHERE anime_name='{}'"""
+        statement = produce_delete_query.format(anime_name)
+        cursor.execute(statement)
+        db.commit()
+
+        companys = m_form['company'].split(' ')
+        comp_insert_query = """INSERT INTO produce(anime_name,comp_name)
+        VALUES"""
+        for i in range(len(companys)):
+            if i != len(companys) - 1:
+                comp_insert_query = comp_insert_query + "('{}','{}'),".format(anime_name, companys[i])
+            else:
+                comp_insert_query = comp_insert_query + "('{}','{}')".format(anime_name, companys[i])
+        cursor.execute(comp_insert_query)
+
+        # 向direct中插入元组
+        direct_delete_query = """DELETE FROM `direct`
+                WHERE anime_name='{}'"""
+        statement = direct_delete_query.format(anime_name)
+        cursor.execute(statement)
+        db.commit()
+
+        directors = m_form['director'].split(' ')
+        direct_insert_query = """INSERT INTO direct(anime_name,dir_name)
+                VALUES"""
+        for i in range(len(directors)):
+            if i != len(directors) - 1:
+                direct_insert_query = direct_insert_query + "('{}','{}'),".format(anime_name, directors[i])
+            else:
+                direct_insert_query = direct_insert_query + "('{}','{}')".format(anime_name, directors[i])
+        cursor.execute(direct_insert_query)
+
+        db.commit()
+        dbDisconnect(db)
+        return redirect('/anime/' + anime_name)
 
 
 @app.route('/type')
@@ -381,10 +555,12 @@ def test():
 
 # 根本没有错误处理 太惨了
 # 要解决并发访问的问题 刷新页面的时候就会遇到 packet sequence number wwrong - got 1 expected 2
+# 作为唯一一个调用接口，需要注意动画名字中可能包含&，与url中的字符相冲突，这里进行了一次字符转换
 @app.route('/addTag')
 def addTag():
     db = pymysql.connect("localhost", "temp", "123456", "anime")
     anime_name = request.args.get('name')
+    anime_name = anime_name.replace('^', '&')
     a_tag = request.args.get('tag')
     tags = a_tag.split(' ')
 
@@ -398,6 +574,7 @@ VALUES"""
         else:
             tag_insert_query = tag_insert_query + tag_value.format("admin", anime_name, tags[i], 1)
 
+    print(tag_insert_query)
     cursor.execute(tag_insert_query)
     db.commit()
     db.close()

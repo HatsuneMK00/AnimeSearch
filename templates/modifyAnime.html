@@ -30,56 +30,42 @@
     </div>
 </nav>
 <div style="padding: 10vh 50px;font-size: 25px;" class="container">
-    <form method="POST" action="addAnime" enctype="multipart/form-data">
+    <form method="POST" action="modifyAnime" enctype="multipart/form-data">
         <div class="form-group">
             <label for="name">动画名称</label>
-            <input type="text" class="form-control" id="name" name='name' placeholder="名称">
+            <input type="text" class="form-control" id="name" name='name' value="{{data[0]}}" readonly>
         </div>
         <div class="form-group">
             <label for="describe">简介</label>
-            <textarea class="form-control" rows="3" id="describe" name='describe' placeholder="简介"></textarea>
+            <textarea class="form-control" rows="3" id="describe" name='describe'>{{data[1]}}</textarea>
         </div>
         <div class="form-group">
             <label for="year">年份</label>
-            <textarea class="form-control" rows="1" id="year" name='year' placeholder="年份"></textarea>
+            <textarea class="form-control" rows="1" id="year" name='year'>{{data[3]}}</textarea>
         </div>
         <div class="form-group">
             <label for="vocal">声优<p class="help-block" style="font-size: small">主要声优（空格分割）</p></label>
-            <textarea class="form-control" rows="2" id="vocal" name='vocal' placeholder="声优"></textarea>
+            <textarea class="form-control" rows="2" id="vocal" name='vocal'>{{vocal}}</textarea>
         </div>
         <div class="form-group">
             <label for="vocal">监督<p class="help-block" style="font-size: small">主要监督</p></label>
-            <textarea class="form-control" rows="2" id="director" name='director' placeholder="监督"></textarea>
+            <textarea class="form-control" rows="2" id="director" name='director'>{{director}}</textarea>
         </div>
         <div class="form-group">
             <label for="vocal">动画公司<p class="help-block" style="font-size: small">动画公司</p></label>
-            <textarea class="form-control" rows="2" id="company" name='company' placeholder="动画公司"></textarea>
+            <textarea class="form-control" rows="2" id="company" name='company'>{{company}}</textarea>
         </div>
         <div class="form-group">
             <label for="tag">评价tag<p class="help-block" style="font-size: small">将可以通过tag找到该动画（空格分割）</p></label>
-            <textarea class="form-control" rows="2" id="tag" name='tag' placeholder="Tag"></textarea>
+            <textarea class="form-control" rows="2" id="tag" name='tag'>{{tag}}</textarea>
         </div>
         <div class="form-group">
             <label for="score">评分<p class="help-block" style="font-size: small">0-10</p></label>
-            <textarea class="form-control" rows="1" id="score" name='score' placeholder="评分"></textarea>
+            <textarea class="form-control" rows="1" id="score" name='score'>{{data[5]}}</textarea>
         </div>
         <div class="form-group">
             <label for="episode_num">集数</label>
-            <textarea class="form-control" rows="1" id="episode_num" name='episode_num' placeholder="集数"></textarea>
-        </div>
-        <div class="form-group">
-            <label>类别</label><br>
-            <div style="font-size: 18px">
-                {% for item in data %}
-                <label class="checkbox-inline">
-                    <input type="checkbox" name="{{ item[0] }}" value="type"> {{ item[0] }}
-                </label>
-                {% endfor %}
-            </div>
-        </div>
-        <div class="form-group" style="font-size: 19px;">
-            <label for="Image">封面图</label>
-            <input type="file" multiple="multiple" name="file" id="Image">
+            <textarea class="form-control" rows="1" id="episode_num" name='episode_num'>{{data[7]}}</textarea>
         </div>
         <div style="display: table;width: 60%;margin-left: auto;margin-right: auto">
             <button type="submit" class="btn btn-primary btn-lg btn-block">提交</button>
