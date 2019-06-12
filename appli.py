@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect, session
-from settings import getCompanys, getDirectors, getVocals, getTags, getAll, dbConnect, dbDisconnect
+from support import getCompanys, getDirectors, getVocals, getTags, getAll, dbConnect, dbDisconnect, getAnimeAllInfo
 import pymysql
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -13,6 +13,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
+
 
 # 动画条目中收藏按钮不显示是否收藏，如果收藏了还点会弹出提示，但暂时不根据是否收藏改变按钮样式，是一个轻松一点的折中方案
 @app.route('/')
@@ -40,7 +41,8 @@ LIMIT 5"""
         vocals.append(getVocals(anime[0], db))
 
     dbDisconnect(db)
-    return render_template('index.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,user=user)
+    return render_template('index.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,
+                           user=user)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -73,7 +75,7 @@ WHERE `usr_name`='{}'"""
                 return render_template('login.html', error="密码错误")  # error不能用中文
         else:
             dbDisconnect(db)
-            return render_template('login.html',error="没有该用户，请去注册")
+            return render_template('login.html', error="没有该用户，请去注册")
 
 
 @app.route('/signUp', methods=['GET', 'POST'])
@@ -102,6 +104,7 @@ VALUES('{}','{}','{}')"""
             db.commit()
         dbDisconnect(db)
         return redirect('/login')
+
 
 # 这个逻辑应该是没问题的 session是存储在本地的，跟随http下层的tcp连接传输的，因此不需要用户名参数
 @app.route('/logout')
@@ -135,7 +138,8 @@ WHERE `name`='{}'"""
         directors.append(getDirectors(anime[0], db))
         vocals.append(getVocals(anime[0], db))
     dbDisconnect(db)
-    return render_template('anime.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,user=user)
+    return render_template('anime.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,
+                           user=user)
 
 
 @app.route('/user/<user_name>')
@@ -285,7 +289,8 @@ WHERE anime_name='{}'"""
         cursor.execute(statement)
         tags.append(cursor.fetchall())
     dbDisconnect(db)
-    return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,user=user)
+    return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,
+                           user=user)
 
 
 @app.route('/tag/result', methods=['POST'])
@@ -330,41 +335,11 @@ def tag_result():
         cursor.execute(statement)
         # 所有满足要求的anime_name
         animes = cursor.fetchall()
-
-    # 获取anime相关所需信息
-    data = []
-    vocals = []
-    directors = []
-    companys = []
-    info_query = """SELECT {} FROM {}
-        WHERE {}='{}'"""
-    # 不一起执行的原因是因为一起执行返回的结果不太好处理 对应python中会成为异构list
-    for anime in animes:
-        cursor.execute(info_query.format("*", "anime", "`name`", anime[0]))
-        data.append(cursor.fetchall()[0])
-        cursor.execute(info_query.format("vocal_name", "act", "anime_name", anime[0]))
-        vocals.append(cursor.fetchall())
-        cursor.execute(info_query.format("dir_name", "direct", "anime_name", anime[0]))
-        directors.append(cursor.fetchall())
-        cursor.execute(info_query.format("comp_name", "produce", "anime_name", anime[0]))
-        companys.append(cursor.fetchall())
-
-    # print(data)
-    # print(vocals)
-    # print(directors)
-    # print(companys)
-
-    # 获取每个动画的评价
-    tags = []
-    tag_query = """SELECT tag,agree_num FROM usr_tag_anime
-    WHERE anime_name='{}'"""
-    for anime in data:
-        statement = tag_query.format(anime[0])
-        # print(statement)
-        cursor.execute(statement)
-        tags.append(cursor.fetchall())
     dbDisconnect(db)
-    return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,user=user)
+    # 获取anime相关所需信息
+    data, tags, vocals, directors, companys = getAnimeAllInfo(animes)
+    return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,
+                           user=user)
 
 
 # 查询动画相关信息的函数如果可以模块化的话就很好，现在冗余有点高
@@ -427,7 +402,7 @@ def addAnime():
         cursor.execute(type_select_query)
         data = cursor.fetchall()
         dbDisconnect(db)
-        return render_template('addAnime.html', data=data,user=user)
+        return render_template('addAnime.html', data=data, user=user)
     else:
         m_form = request.form
         file_name = ""
@@ -559,7 +534,7 @@ def ModifyAnime(anime_name):
         data = cursor.fetchall()
         # print(data)
         return render_template("modifyAnime.html", data=data[0], vocal=vocal, company=company, director=director,
-                               tag=tag,user=user)
+                               tag=tag, user=user)
     else:
         m_form = request.form
         # 向anime中更新元组
@@ -686,7 +661,7 @@ def type():
     directors = cursor.fetchall()
     # print(directors)
     dbDisconnect(db)
-    return render_template('type.html', types=types, vocals=vocals, companys=companys, directors=directors,user=user)
+    return render_template('type.html', types=types, vocals=vocals, companys=companys, directors=directors, user=user)
 
 
 @app.route('/tag')
@@ -704,7 +679,7 @@ GROUP BY tag"""
     cursor.execute(tag_query)
     tags = cursor.fetchall()
     db.close()
-    return render_template('tag.html', tags=tags,user=user)
+    return render_template('tag.html', tags=tags, user=user)
 
 
 # 根本没有错误处理 太惨了
@@ -735,6 +710,29 @@ VALUES"""
     dbDisconnect(db)
     return "success"
 
+
+@app.route('/searchAnime', methods=['POST'])
+def SearchAnime():
+    db = dbConnect()
+    cursor = db.cursor()
+    search_anime = request.form.get('SA')
+    anime_search_query = """SELECT `name` FROM anime
+WHERE `name` LIKE '%{}%'"""
+    statement = anime_search_query.format(search_anime)
+    print(statement)
+    cursor.execute(statement)
+    animes = cursor.fetchall()
+    dbDisconnect(db)
+
+    data, tags, vocals, directors, companys = getAnimeAllInfo(animes)
+    if 'username' in session:
+        user = session['username']
+    else:
+        user = None
+    return render_template('result.html', data=data, tags=tags, vocals=vocals, directors=directors, companys=companys,
+                           user=user)
+
+
 # 需要检查是否收藏过
 @app.route('/addAnimeToWatch/<anime_name>')
 def AddAnimeToWatch(anime_name):
@@ -745,7 +743,7 @@ def AddAnimeToWatch(anime_name):
     user_name = session['username']
     check_watched_query = """SELECT COUNT(*) FROM `watch`
 WHERE usr_name='{}' AND anime_name='{}'"""
-    statement = check_watched_query.format(user_name,anime_name)
+    statement = check_watched_query.format(user_name, anime_name)
     cursor.execute(statement)
     data = cursor.fetchone()
     print(data[0])
@@ -755,13 +753,14 @@ WHERE usr_name='{}' AND anime_name='{}'"""
     else:
         insert_watch_query = """INSERT INTO `watch`(anime_name,usr_name)
 VALUES('{}','{}')"""
-        statement = insert_watch_query.format(anime_name,user_name)
+        statement = insert_watch_query.format(anime_name, user_name)
         cursor.execute(statement)
         db.commit()
         dbDisconnect(db)
         return "success"
 
-#这个接口现在只在watchlist中出现，因此不进行存在性检查
+
+# 这个接口现在只在watchlist中出现，因此不进行存在性检查
 @app.route('/removeAnimeFromWatch/<anime_name>')
 def RemoveAnimeFromWatch(anime_name):
     db = dbConnect()

@@ -56,6 +56,10 @@
                 <a class="nav-link" href="/tag">TAG</a>
             </li>
         </ul>
+        <form class="form-inline" action="searchAnime" method="post">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search Anime" aria-label="Search" name="SA">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
         {% if user is none %}
         <div class="my-2 my-lg-0">
             <button class="btn btn-outline-success my-2 my-sm-0" type="button" onclick="directToLogIn()">登陆</button>
